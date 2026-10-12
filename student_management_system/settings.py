@@ -23,7 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('MY_SECRET_KEY')  # Consider using your secret key
+# In production always set MY_SECRET_KEY in the environment. The fallback below is
+# a development-only key so the project can start without extra setup.
+SECRET_KEY = os.environ.get('MY_SECRET_KEY') or 'dev-only-insecure-key-change-in-production'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -164,6 +166,16 @@ EMAIL_USE_TLS = True
 # DEFAULT_FROM_EMAIL = "Student Management System <admin@admin.com>"
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Django 5.1+ replaced STATICFILES_STORAGE with STORAGES. Both are declared so
+# WhiteNoise compression works on the old and the new setting.
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 prod_db = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(prod_db)

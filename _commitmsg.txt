@@ -1,0 +1,15 @@
+Fix startup crash, broken Ionicons links and obsolete static storage setting
+
+- settings.py: SECRET_KEY had no fallback, so the app crashed on startup
+  unless MY_SECRET_KEY was set. Added a dev-only fallback key. Production
+  still reads MY_SECRET_KEY from the environment.
+- settings.py: added the STORAGES setting (introduced in Django 5.1) so
+  WhiteNoise compression is actually active; STATICFILES_STORAGE alone was
+  silently ignored on modern Django.
+- login.html and registration/base.html: an absolute CDN URL was wrapped in
+  {% static %}, producing a mangled path like
+  /static/https%3A/code.ionicframework.com/... and breaking Ionicons.
+
+Verified: manage.py check passes with no MY_SECRET_KEY set, all 35 pages
+across HOD/Staff/Student roles return 200, and Ionicons now resolves to the
+correct absolute URL.
